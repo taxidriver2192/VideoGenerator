@@ -10,7 +10,8 @@ VideoGenerator er et projekt, der kombinerer forskellige tjenester og scripts fo
 ## Formål og Eksempel
 
 Dette projekt er inspireret af ønsket om at automatisere skabelsen af indhold, der ligner indholdet i følgende 
-<iframe width="405" height="720" src="https://www.youtube.com/embed/P2kRrulJsPc" title="Good old dark jokes w PRESIDENTS (Biden Obama Trump)  #meme  #presidents #ai #jokes #memes #videos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<iframe width="405" height="720" src="https://www.youtube.com/embed/P2kRrulJsPc" title="Good old dark jokes w PRESIDENTS (Biden Obama Trump)  #meme  #presidents #ai #jokes #memes #videos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen=""></iframe>
 
 Målet er at automatisere hele processen fra at generere scripts, oprette lyd, tilføje undertekster og klippe videoer i mindre segmenter. Med en fremtidig udvidelse planlægger vi også at tilføje muligheden for automatisk at uploade bearbejdede videoer til YouTube.
 
