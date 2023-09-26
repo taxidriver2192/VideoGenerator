@@ -9,7 +9,8 @@ VideoGenerator er et projekt, der kombinerer forskellige tjenester og scripts fo
 
 ## Formål og Eksempel
 
-Dette projekt er inspireret af ønsket om at automatisere skabelsen af indhold, der ligner indholdet i følgende [eksempelvideo](https://v16-webapp-prime.tiktok.com/video/tos/alisg/tos-alisg-pve-0037c001/oodE43ffNIzIUIQAUuSgN5hVk6EDRFSBUJpWyB/?a=1988&ch=0&cr=3&dr=0&lr=unwatermarked&cd=0%7C0%7C0%7C3&cv=1&br=2544&bt=1272&bti=ODszNWYuMDE6&cs=0&ds=6&ft=_RwJrBe9q8Zmoait~Q_vj0LELAhLrus&mime_type=video_mp4&qs=0&rc=NjtoNmhlaTZlaWhkOWg4aUBpM2dleDs6ZmRmbTMzODczNEAuYS5iXl4xNTQxMV4tNGA1YSNrZF5ecjQwaHFgLS1kMTFzcw%3D%3D&btag=e00090000&expire=1695780495&l=2023092620071563920DE4373D9F78820A&ply_type=2&policy=2&signature=ee4d1b9a05ee37deb9e6222f179d7db9&tk=tt_chain_token).
+Dette projekt er inspireret af ønsket om at automatisere skabelsen af indhold, der ligner indholdet i følgende 
+<iframe width="405" height="720" src="https://www.youtube.com/embed/P2kRrulJsPc" title="Good old dark jokes w PRESIDENTS (Biden Obama Trump)  #meme  #presidents #ai #jokes #memes #videos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 Målet er at automatisere hele processen fra at generere scripts, oprette lyd, tilføje undertekster og klippe videoer i mindre segmenter. Med en fremtidig udvidelse planlægger vi også at tilføje muligheden for automatisk at uploade bearbejdede videoer til YouTube.
 
