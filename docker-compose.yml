@@ -1,0 +1,35 @@
+version: '3.1'
+
+services:
+  elevenlabs-service:
+    env_file:
+      - .env
+    volumes:
+      - ./script-generator/scripts:/elevenlabs-service/scripts
+      - ./downloaded-videos/videos:/elevenlabs-service/videos
+      - ./elevenlabs-service/videos_and_sound:/elevenlabs-service/videos_and_sound
+      - ./elevenlabs-service/audios:/elevenlabs-service/audios
+    build:
+      context: ./elevenlabs-service
+      dockerfile: Dockerfile
+
+      
+  downloaded-videos:
+    volumes:
+      - ./downloaded-videos:/app
+    build:
+      context: ./downloaded-videos
+      dockerfile: Dockerfile
+
+  auto-subtitle:
+    volumes:
+      - ./elevenlabs-service/videos:/app/videos
+    build:
+      context: ./auto-subtitle
+      dockerfile: Dockerfile
+
+  script-generator:
+    build:
+      context: ./script-generator
+      dockerfile: Dockerfile
+
