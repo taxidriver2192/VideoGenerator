@@ -1,9 +1,11 @@
-import argparse
+from flask import Flask, request
 import io
 import os
 from pydub import AudioSegment
 from moviepy.editor import AudioFileClip, VideoFileClip
 from elevenlabs import generate, set_api_key
+
+app = Flask(__name__)
 
 api_key = os.getenv("ELEVENLABS_API_KEY")
 if api_key is None:
@@ -11,7 +13,7 @@ if api_key is None:
 
 set_api_key(api_key)
 
-# Definér stemmerne
+# Define voices
 voices_map = {
     "OBAMA": "Barack Obama",
     "TRUMP": "Donald Trump",
@@ -34,49 +36,53 @@ def generate_audio_for_section(section):
     audio_data = generate(text=text.strip(), voice=voice_name, model="eleven_multilingual_v2")
     return AudioSegment.from_file(io.BytesIO(audio_data), format="mp3")
 
-def main():
-    parser = argparse.ArgumentParser(description='Generate audio and optionally add to video.')
-    parser.add_argument('video_file', type=str, help='The video file to which audio will be added.')
-    parser.add_argument('--skip-api', action='store_true', help='Skip calling the API if the audio file already exists.')
-    args = parser.parse_args()
+
+@app.route('/generate_audio', methods=['POST'])
+def generate_audio_and_add_to_video():
+    data = request.json
+    video_file = data.get('video_path')
+    skip_api = data.get('skip_api', False)
 
     filename = "scripts/example.txt"
     audio_file = "audios/audio.mp3"
 
-    print("Læser tekstfil...")
+    print("Reading text file...")
     content = read_text_file(filename)
     sections = extract_sections(content)
 
     final_audio = AudioSegment.silent(duration=500)  # start with 0.5s silence
 
-    if not args.skip_api:
-        print("Genererer audio...")
+    if not skip_api:
+        print("Generating audio...")
         for section in sections:
             audio_segment = generate_audio_for_section(section)
             final_audio += audio_segment + AudioSegment.silent(duration=300)  # 0.3s silence between sections
 
         final_audio += AudioSegment.silent(duration=1000)  # end with 1s silence
 
-        print(f"Skriver audio til {audio_file}...")
+        print(f"Writing audio to {audio_file}...")
         with open(audio_file, 'wb') as f:
             final_audio.export(f, format="mp3")
     else:
-        print(f"Springer API kald over og bruger eksisterende fil {audio_file}...")
+        print(f"Skipping API call and using existing file {audio_file}...")
         final_audio = AudioSegment.from_mp3(audio_file)
 
-    print("Tilføjer audio til video...")
+    print("Adding audio to video...")
     audio_clip = AudioFileClip(audio_file)
-    video_clip = VideoFileClip(args.video_file).subclip(0, len(final_audio) / 1000.0)
+    video_clip = VideoFileClip(video_file).subclip(0, len(final_audio) / 1000.0)
     final_clip = video_clip.set_audio(audio_clip)
     output_video_file = "videos_and_sound/output_with_audio.mp4"
-    print(f"Skriver den endelige video til {output_video_file}...")
+    print(f"Writing final video to {output_video_file}...")
     final_clip.write_videofile(output_video_file, codec='libx264', audio_codec='aac')
 
-    #try:
-    #    os.remove(args.video_file)
-    #    print(f"{args.video_file} er blevet slettet.")
-    #except Exception as e:
-    #    print(f"Fejl ved sletning af {args.video_file}: {e}")
+    try:
+        os.remove(video_file)
+        print(f"{video_file} has been deleted.")
+    except Exception as e:
+        print(f"Error deleting {video_file}: {e}")
 
-if __name__ == "__main__":
-    main()
+    return {"status": "success", "message": "Audio generated and added to video successfully!"}, 200
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5002)

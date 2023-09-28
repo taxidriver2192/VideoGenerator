@@ -8,6 +8,6 @@ RUN apt-get update && \
 WORKDIR /elevenlabs-service
 COPY . /elevenlabs-service
 
-RUN pip install --no-cache-dir elevenlabs pydub moviepy
+RUN pip install --no-cache-dir elevenlabs pydub moviepy Flask
 
-CMD ["tail", "-f", "/dev/null"]
+CMD ["python", "./geberateAudio.py"]

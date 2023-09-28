@@ -5,6 +5,9 @@ up:
 down:
 	docker-compose down
 
+ssh_app:
+	docker exec -it videogenerator-my-app-1 /bin/bash
+
 ssh_elevenlabs-service:
 	docker exec -it videogenerator-elevenlabs-service-1 /bin/bash
 

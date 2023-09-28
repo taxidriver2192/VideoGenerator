@@ -1,35 +1,42 @@
 version: '3.1'
 
 services:
+  my-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      
   elevenlabs-service:
     env_file:
       - .env
     volumes:
-      - ./script-generator/scripts:/elevenlabs-service/scripts
-      - ./downloaded-videos/videos:/elevenlabs-service/videos
-      - ./elevenlabs-service/videos_and_sound:/elevenlabs-service/videos_and_sound
-      - ./elevenlabs-service/audios:/elevenlabs-service/audios
+      - .files/scripts:/app/scripts
+      - .files/videos:/app/videos
+      - .files/videos_and_sound:/app/videos_and_sound
+      - .files/audios:/app/audios
     build:
-      context: ./elevenlabs-service
-      dockerfile: Dockerfile
-
+      context: .
+      dockerfile: Dockerfile.elevenlabs-service
+    ports:
+      - "5002:5002"
       
   downloaded-videos:
     volumes:
-      - ./downloaded-videos:/app
+      - ./videos:/app/videos
     build:
-      context: ./downloaded-videos
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Dockerfile.downloaded-videos
+    ports:
+      - "5001:5001"
 
   auto-subtitle:
     volumes:
-      - ./elevenlabs-service/videos:/app/videos
+      - ./videos:/app/videos
     build:
-      context: ./auto-subtitle
-      dockerfile: Dockerfile
-
+      context: .
+      dockerfile: Dockerfile.auto-subtitle
+      
   script-generator:
     build:
-      context: ./script-generator
-      dockerfile: Dockerfile
-
+      context: .
+      dockerfile: Dockerfile.script-generator
