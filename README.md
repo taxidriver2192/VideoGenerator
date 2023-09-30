@@ -2,6 +2,10 @@
 
 VideoGenerator er et projekt, der kombinerer forskellige tjenester og scripts for at generere videoer med tilføjet lyd og undertekster. Det bruger teknologier som Docker til at isolere og køre forskellige dele af applikationen.
 
+# 🚧 Disclaimer: Work in Progress 🚧
+
+This project is currently in its early stages of development and is not fully functional yet. It serves as a learning and experimentation ground, and as such, it may contain incomplete features, bugs, and non-operational components.
+
 ## Teknologier
 - Python: Bruges til scripting og at koordinere de forskellige dele af applikationen.
 - Docker: Bruges til at containerisere og køre de forskellige tjenester.
