@@ -3,8 +3,10 @@ version: '3.1'
 services:
   my-app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./my-app
+      dockerfile: Dockerfile 
+    ports:
+      - "8080:80"  
       
   elevenlabs-service:
     env_file:
@@ -22,7 +24,7 @@ services:
       
   downloaded-videos:
     volumes:
-      - ./files/videos:/app/videos
+      - ./files/videos:/downloaded-videos/videos:z
     build:
       context: ./downloaded-videos
       dockerfile: Dockerfile
