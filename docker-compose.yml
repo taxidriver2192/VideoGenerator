@@ -10,22 +10,22 @@ services:
     env_file:
       - .env
     volumes:
-      - .files/scripts:/app/scripts
-      - .files/videos:/app/videos
-      - .files/videos_and_sound:/app/videos_and_sound
-      - .files/audios:/app/audios
+      - ./files/scripts:/app/scripts
+      - ./files/videos:/app/videos
+      - ./files/videos_and_sound:/app/videos_and_sound
+      - ./files/audios:/app/audios
     build:
-      context: .
-      dockerfile: Dockerfile.elevenlabs-service
+      context: ./elevenlabs-service
+      dockerfile: Dockerfile
     ports:
       - "5002:5002"
       
   downloaded-videos:
     volumes:
-      - ./videos:/app/videos
+      - ./files/videos:/app/videos
     build:
-      context: .
-      dockerfile: Dockerfile.downloaded-videos
+      context: ./downloaded-videos
+      dockerfile: Dockerfile
     ports:
       - "5001:5001"
 
@@ -33,10 +33,10 @@ services:
     volumes:
       - ./videos:/app/videos
     build:
-      context: .
-      dockerfile: Dockerfile.auto-subtitle
+      context: ./auto-subtitle
+      dockerfile: Dockerfile
       
   script-generator:
     build:
-      context: .
-      dockerfile: Dockerfile.script-generator
+      context: ./script-generator
+      dockerfile: Dockerfile
