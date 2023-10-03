@@ -1,104 +1,62 @@
-import io
 import os
-import glob
-from pydub import AudioSegment
-from moviepy.editor import AudioFileClip, VideoFileClip
-from elevenlabs import generate, set_api_key
+import sys
+from moviepy.editor import VideoFileClip
+import yt_dlp as youtube_dl
 
-api_key = os.getenv("ELEVENLABS_API_KEY")
-if api_key is None:
-    raise ValueError("API key is not set. Please set the ELEVENLABS_API_KEY environment variable.")
+if len(sys.argv) < 2:
+    print("Brug: python youtube-downloader.py [YOUTUBE_VIDEO_URL]")
+    sys.exit(1)
 
-set_api_key(api_key)
+url = sys.argv[1]
+output_folder = 'files/videos'
+os.makedirs(output_folder, exist_ok=True)
 
-# Definér stemmerne
-voices_map = {
-    "OBAMA": "Barack Obama",
-    "TRUMP": "Donald Trump",
-    "JOE": "Joe Biden"
+ydl_opts = {
+    'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
+    'outtmpl': os.path.join(output_folder, '%(title)s.%(ext)s'),
 }
 
-def read_text_file(filename):
-    with open(filename, 'r') as f:
-        content = f.read()
-    return content
+with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    info_dict = ydl.extract_info(url, download=True)
+    video_file = ydl.prepare_filename(info_dict)
 
-def extract_sections(content):
-    sections = content.split("\n\n")
-    return sections
+print(f"Downloaded video file at {video_file}")
 
-def generate_audio_for_section(section):
-    voice_marker = section.split("\n")[0].replace("[", "").replace("]", "")
-    text = section.replace(f"[{voice_marker}]\n", "")
-    voice_name = voices_map[voice_marker]
-    audio_data = generate(text=text.strip(), voice=voice_name, model="eleven_multilingual_v2")
-    return AudioSegment.from_file(io.BytesIO(audio_data), format="mp3")
+clip = VideoFileClip(video_file)
 
-def process_video_file(video_file):
-    filename = "scripts/example.txt"
-    audio_file = f"audios/{os.path.splitext(os.path.basename(video_file))[0]}_audio.mp3"
+# Klip de første 10 sekunder fra videoen.
+clip = clip.subclip(10)
 
-    print(f"Læser tekstfil for {video_file}...")
-    content = read_text_file(filename)
-    sections = extract_sections(content)
+# Fjern lyden fra klippet
+clip = clip.without_audio()
 
-    final_audio = AudioSegment.silent(duration=500)  # start with 0.5s silence
+target_aspect_ratio = 9 / 16 
 
-    print(f"Genererer audio for {video_file}...")
-    for section in sections:
-        audio_segment = generate_audio_for_section(section)
-        final_audio += audio_segment + AudioSegment.silent(duration=300)  # 0.3s silence between sections
+width, height = clip.size
+original_aspect_ratio = width / height
 
-    final_audio += AudioSegment.silent(duration=1000)  # end with 1s silence
+if original_aspect_ratio > target_aspect_ratio:
+    new_width = int(height * target_aspect_ratio)
+    new_height = height
+else:
+    new_width = width
+    new_height = int(width / target_aspect_ratio)
 
-    print(f"Skriver audio til {audio_file}...")
-    with open(audio_file, 'wb') as f:
-        final_audio.export(f, format="mp3")
+clip_resized = clip.crop(x_center=width/2, y_center=height/2, width=new_width, height=new_height)
 
-    print(f"Tilføjer audio til {video_file}...")
-    audio_clip = AudioFileClip(audio_file)
-    video_clip = VideoFileClip(video_file).subclip(0, len(final_audio) / 1000.0)
-    final_clip = video_clip.set_audio(audio_clip)
-    output_video_file = f"files/videos/{os.path.splitext(os.path.basename(video_file))[0]}_subtitles.mp4"
-    print(f"Skriver den endelige video til {output_video_file}...")
-    final_clip.write_videofile(output_video_file, codec='libx264', audio_codec='aac')
+# Finde næste tilgængelige filnavn
+i = 1
+while os.path.exists(os.path.join(output_folder, f'video_{i}.mp4')):
+    i += 1
 
-    try:
-        os.remove(video_file)
-        print(f"{video_file} er blevet slettet.")
-    except Exception as e:
-        print(f"Fejl ved sletning af {video_file}: {e}")
-
-def main():
-
-    print("Listing files in root directory...")
-    root_dir = "/"
-    files = os.listdir(root_dir)
-
-    for file in files:
-        print(file)
-
-    for file in files:
-        print(file)
-        
-    video_dir = "files/videos"
-    video_files = [os.path.join(video_dir, f) for f in os.listdir(video_dir) if f.endswith(".mp4")]
-    if not video_files:
-        print("Der er ingen videoer at behandle.")
-        return
-
-    print(f"Videoer fundet i {video_dir}:")
-    for video_file in video_files:
-        print(video_file)
-
-    for video_file in video_files:
-        if os.path.exists(video_file):
-            print(f"Behandler {video_file}...")
-            process_video_file(video_file)
-        else:
-            print(f"Videoen {video_file} eksisterer ikke.")
-
-    print("Alle videoer er blevet behandlet.")
-
-if __name__ == "__main__":
-    main()
+# Klip og gem hver minut af videoen som en separat fil
+for start in range(0, int(clip_resized.end), 60):
+    end = min(start + 60, int(clip_resized.end))
+    # Hvis subclip er mindre end 60 sekunder, springer vi over det.
+    if end - start < 60:
+        continue
+    subclip = clip_resized.subclip(start, end)
+    output_file = os.path.join(output_folder, f'video_{i}.mp4')
+    subclip.write_videofile(output_file, codec='libx264')
+    print(f"Resized, cropped, audio removed, and clipped video file at {output_file}")
+    i += 1

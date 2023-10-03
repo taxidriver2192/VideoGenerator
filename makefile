@@ -23,5 +23,5 @@ build_and_start_my_app:
 	
 build_and_start_elevenlabs_service:
 	docker-compose up --build -d elevenlabs-service
-	docker-compose exec elevenlabs-service /bin/bash
+	docker-compose exec elevenlabs-service /bin/bash -c "python3 generateAudio.py --skip-api"
 
