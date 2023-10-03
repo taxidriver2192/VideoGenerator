@@ -16,3 +16,12 @@ ssh_downloaded-videos:
 
 ssh_auto-subtitle:
 	docker exec -it videogenerator-auto-subtitle-1 /bin/bash
+
+build_and_start_my_app:
+	docker-compose up --build -d my-app
+	docker-compose exec my-app /bin/bash
+	
+build_and_start_elevenlabs_service:
+	docker-compose up --build -d elevenlabs-service
+	docker-compose exec elevenlabs-service /bin/bash
+

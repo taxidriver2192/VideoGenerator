@@ -7,15 +7,14 @@ services:
       dockerfile: Dockerfile 
     ports:
       - "8080:80"  
+    volumes:
+      - ./files:/var/www/html/files:z
       
   elevenlabs-service:
     env_file:
       - .env
     volumes:
-      - ./files/scripts:/app/scripts
-      - ./files/videos:/app/videos
-      - ./files/videos_and_sound:/app/videos_and_sound
-      - ./files/audios:/app/audios
+      - ./files:/elevenlabs-service/files:z
     build:
       context: ./elevenlabs-service
       dockerfile: Dockerfile
@@ -24,21 +23,9 @@ services:
       
   downloaded-videos:
     volumes:
-      - ./files/videos:/downloaded-videos/videos:z
+      - ./files:/downloaded-videos/files:z
     build:
       context: ./downloaded-videos
       dockerfile: Dockerfile
     ports:
       - "5001:5001"
-
-  auto-subtitle:
-    volumes:
-      - ./videos:/app/videos
-    build:
-      context: ./auto-subtitle
-      dockerfile: Dockerfile
-      
-  script-generator:
-    build:
-      context: ./script-generator
-      dockerfile: Dockerfile

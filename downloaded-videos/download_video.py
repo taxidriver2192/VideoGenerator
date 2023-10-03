@@ -1,95 +1,104 @@
-from flask import Flask, request, jsonify
-from flask_socketio import SocketIO
-from flask_cors import CORS
+import io
 import os
-import yt_dlp
-import moviepy.editor as mp
-from datetime import datetime
+import glob
+from pydub import AudioSegment
+from moviepy.editor import AudioFileClip, VideoFileClip
+from elevenlabs import generate, set_api_key
 
-app = Flask(__name__)
-CORS(app)  # Dette vil tillade alle oprindelser
-socketio = SocketIO(app, cors_allowed_origins="*")  # Tillader alle oprindelser
+api_key = os.getenv("ELEVENLABS_API_KEY")
+if api_key is None:
+    raise ValueError("API key is not set. Please set the ELEVENLABS_API_KEY environment variable.")
 
-@app.route('/')
-def index():
-    return "Hello from Youtube-downloader!"
+set_api_key(api_key)
 
-@app.route('/download_video', methods=['POST'])
-def download_video_api():
-    url = request.json.get('url')
-    if not url:
-        return jsonify({'error': 'URL is required'}), 400
+# Definér stemmerne
+voices_map = {
+    "OBAMA": "Barack Obama",
+    "TRUMP": "Donald Trump",
+    "JOE": "Joe Biden"
+}
+
+def read_text_file(filename):
+    with open(filename, 'r') as f:
+        content = f.read()
+    return content
+
+def extract_sections(content):
+    sections = content.split("\n\n")
+    return sections
+
+def generate_audio_for_section(section):
+    voice_marker = section.split("\n")[0].replace("[", "").replace("]", "")
+    text = section.replace(f"[{voice_marker}]\n", "")
+    voice_name = voices_map[voice_marker]
+    audio_data = generate(text=text.strip(), voice=voice_name, model="eleven_multilingual_v2")
+    return AudioSegment.from_file(io.BytesIO(audio_data), format="mp3")
+
+def process_video_file(video_file):
+    filename = "scripts/example.txt"
+    audio_file = f"audios/{os.path.splitext(os.path.basename(video_file))[0]}_audio.mp3"
+
+    print(f"Læser tekstfil for {video_file}...")
+    content = read_text_file(filename)
+    sections = extract_sections(content)
+
+    final_audio = AudioSegment.silent(duration=500)  # start with 0.5s silence
+
+    print(f"Genererer audio for {video_file}...")
+    for section in sections:
+        audio_segment = generate_audio_for_section(section)
+        final_audio += audio_segment + AudioSegment.silent(duration=300)  # 0.3s silence between sections
+
+    final_audio += AudioSegment.silent(duration=1000)  # end with 1s silence
+
+    print(f"Skriver audio til {audio_file}...")
+    with open(audio_file, 'wb') as f:
+        final_audio.export(f, format="mp3")
+
+    print(f"Tilføjer audio til {video_file}...")
+    audio_clip = AudioFileClip(audio_file)
+    video_clip = VideoFileClip(video_file).subclip(0, len(final_audio) / 1000.0)
+    final_clip = video_clip.set_audio(audio_clip)
+    output_video_file = f"files/videos/{os.path.splitext(os.path.basename(video_file))[0]}_subtitles.mp4"
+    print(f"Skriver den endelige video til {output_video_file}...")
+    final_clip.write_videofile(output_video_file, codec='libx264', audio_codec='aac')
+
     try:
-        socketio.emit('status', {'msg': 'Download starting...'})
-        download_video(url)
-        socketio.emit('status', {'msg': 'Download complete'})
-        return jsonify({'success': True})
+        os.remove(video_file)
+        print(f"{video_file} er blevet slettet.")
     except Exception as e:
-        socketio.emit('status', {'msg': f'Error: {str(e)}'})
-        return jsonify({'error': str(e)}), 500
+        print(f"Fejl ved sletning af {video_file}: {e}")
 
+def main():
 
-def download_video(url):
-    """
-    Downloads a video from a given URL, crops, resizes, and removes audio from the video, and saves each minute of the video as a separate file.
+    print("Listing files in root directory...")
+    root_dir = "/"
+    files = os.listdir(root_dir)
 
-    Args:
-        url (str): The URL of the video to download.
+    for file in files:
+        print(file)
 
-    Returns:
-        None
-    """
-    try:
-        # Create a folder named 'videos' if it doesn't exist
-        videos_dir = 'files/videos'
-        if not os.path.exists(videos_dir):
-            socketio.emit('status', {'msg': 'Creating videos directory : ' + videos_dir})
-            os.makedirs(videos_dir)
+    for file in files:
+        print(file)
         
-        socketio.emit('status', {'msg': 'Setting download options for yt_dlp...'})
-        # Set download options for yt_dlp
-        ydl_opts = {
-            'format': 'bestvideo[ext=webm]+bestaudio[ext=webm]/best[ext=webm]',
-            'outtmpl': os.path.join(videos_dir, 'video.webm')
-        }
-        
-        # Download the video
-        socketio.emit('status', {'msg': 'Initializing video download...'})
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)   
-            video_duration = info_dict.get('duration', 0)
-            socketio.emit('status', {'msg': f'Video downloaded successfully. Duration: {video_duration} seconds.'})
-        
-        # Set the path of the downloaded video file
-        video_path = os.path.join(videos_dir, 'video.webm')
-        
-        # Set the path of the saved files
-        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        save_path = os.path.join(videos_dir, f'video_{timestamp}_%d.webm')
-        
-        # Crop, resize, and remove audio from the video
-        socketio.emit('status', {'msg': 'Cropping, resizing, and removing audio from the video...'})
-        video = mp.VideoFileClip(video_path)
-        video = video.crop(x1=0, y1=0, x2=1080, y2=1920)
-        video = video.resize(height=720)
-        video = video.without_audio()
-        
-        # Save each minute of the video as a separate file
-        duration = video.duration
-        socketio.emit('status', {'msg': f'Starting to save each minute of the video. Total duration: {duration} seconds...'})
-        for i in range(int(duration // 60) + 1):
-            start_time = i * 60
-            end_time = min((i + 1) * 60, duration)
-            socketio.emit('status', {'msg': f'Saving video from second {start_time} to {end_time}...'})
-            clip = video.subclip(start_time, end_time)
-            clip.write_videofile(save_path % (i + 1), codec='libvpx-vp9', fps=30)
-            socketio.emit('status', {'msg': f'Saved file {i + 1}: {save_path % (i + 1)}'})
-        
-        socketio.emit('status', {'msg': 'All processing complete.'})
-        
-    except Exception as e:
-        print(f'Error: {str(e)}')
-        socketio.emit('status', {'msg': f'Error: {str(e)}'})
+    video_dir = "files/videos"
+    video_files = [os.path.join(video_dir, f) for f in os.listdir(video_dir) if f.endswith(".mp4")]
+    if not video_files:
+        print("Der er ingen videoer at behandle.")
+        return
 
-if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5001)
+    print(f"Videoer fundet i {video_dir}:")
+    for video_file in video_files:
+        print(video_file)
+
+    for video_file in video_files:
+        if os.path.exists(video_file):
+            print(f"Behandler {video_file}...")
+            process_video_file(video_file)
+        else:
+            print(f"Videoen {video_file} eksisterer ikke.")
+
+    print("Alle videoer er blevet behandlet.")
+
+if __name__ == "__main__":
+    main()

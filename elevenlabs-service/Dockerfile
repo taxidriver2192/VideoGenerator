@@ -10,4 +10,5 @@ COPY . /elevenlabs-service
 
 RUN pip install --no-cache-dir elevenlabs pydub moviepy Flask
 
-CMD ["python", "./geberateAudio.py"]
+#CMD ["python", "./geberateAudio.py"]
+CMD ["tail", "-f", "/dev/null"]
