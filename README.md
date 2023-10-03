@@ -1,60 +1,57 @@
 # VideoGenerator
 
-VideoGenerator er et projekt, der kombinerer forskellige tjenester og scripts for at generere videoer med tilføjet lyd og undertekster. Det bruger teknologier som Docker til at isolere og køre forskellige dele af applikationen.
+VideoGenerator is a project that combines different services and scripts to generate videos with added audio and subtitles. It uses technologies such as Docker to isolate and run different parts of the application.
 
-# 🚧 Disclaimer: Work in Progress 🚧
+## 🚧 Disclaimer: Work in Progress 🚧
 
 This project is currently in its early stages of development and is not fully functional yet. It serves as a learning and experimentation ground, and as such, it may contain incomplete features, bugs, and non-operational components.
 
-## Teknologier
-- Python: Bruges til scripting og at koordinere de forskellige dele af applikationen.
-- Docker: Bruges til at containerisere og køre de forskellige tjenester.
-- ElevenLabs: En tjeneste brugt til at generere lyd fra tekst.
+## Technologies
+- Python: Used for scripting and coordinating the different parts of the application.
+- Docker: Used to containerize and run the different services.
+- ElevenLabs: A service used to generate audio from text.
 
-## Formål og Eksempel
+## Purpose and Example
 
-Dette projekt er inspireret af ønsket om at automatisere skabelsen af indhold, der ligner indholdet i følgende 
+This project is inspired by the desire to automate the creation of content that resembles the content in the following [example video](https://www.youtube.com/embed/P2kRrulJsPc). The goal is to automate the entire process from generating scripts, creating audio, adding subtitles, and cutting videos into smaller segments. With a future expansion plan, we also plan to add the ability to automatically upload processed videos to YouTube.
 
-[eksempelvideo](https://www.youtube.com/embed/P2kRrulJsPc).
+### Workflow
 
-Målet er at automatisere hele processen fra at generere scripts, oprette lyd, tilføje undertekster og klippe videoer i mindre segmenter. Med en fremtidig udvidelse planlægger vi også at tilføje muligheden for automatisk at uploade bearbejdede videoer til YouTube.
+1. **Script-generator**: Starts automatically and generates scripts by interacting with ChatGPT.
+2. **Elevenlabs-service**: Starts when script-generation is complete and generates audio for the given script.
+3. **Auto-subtitle**: Starts when audio generation is complete and adds subtitles to the video.
+4. **Downloaded-videos**: Done. Starts manually and takes a link to a video as input. It cuts a longer video into shorter segments. This service can also take a list of videos as input.
+5. **Device-cloning**: Done. Starts manually and clones a device.
 
-### Arbejdsgang
+### Planned Improvements
 
-1. **script-generator**: Starter automatisk og genererer scripts ved at interagere med ChatGPT.
-2. **elevenlabs-service**: Starter, når script-generation er fuldført, og genererer lyd for det givne script.
-3. **auto-subtitle**: Starter, når lydgenerationen er fuldført, og tilføjer undertekster til videoen.
-4. **downloaded-videos**: Skal startes manuelt og tager et link til en video som input. Den klipper en længere video i kortere segmenter. Denne service kan også tage en liste af videoer som input.
+- Automatic upload of processed videos to YouTube.
 
-### Planlagte Forbedringer
+## Getting Started
 
-- Automatisk upload af bearbejdede videoer til YouTube.
-
-## Sådan Kommer Du i Gang
-
-### Krav
+### Requirements
 - Docker
 - Docker Compose
 
-### Opsætning
-1. Klon dette repository til din lokale maskine.
+### Setup
+1. Clone this repository to your local machine.
    ```sh
    git clone https://github.com/taxidriver2192/VideoGenerator
    cd videoGenerator
    ```
-2. Opret en .env fil i rodmappen af projektet og tilføj ElevenLabs API-nøglen:
+2. Create a .env file in the root directory of the project and add the ElevenLabs API key:
    ```txt
-   ELEVENLABS_API_KEY=din_api_nøgle
+   ELEVENLABS_API_KEY=your_api_key
    ```
-3. Kør Docker Compose for at bygge og starte tjenesterne:
+3. Run Docker Compose to build and start the services:
    ```bash
    docker-compose up --build
    ```
 
-4. Se i makefile
+4. See the makefile.
 
-# Sikkerhed
-Husk aldrig at dele dine hemmelige API-nøgler. Brug altid miljøvariabler eller andre sikre metoder til at lagre og håndtere følsomme oplysninger i dit projekt.
+## Security
+Never share your secret API keys. Always use environment variables or other secure methods to store and handle sensitive information in your project.
 
-# License
-Dette projekt er MIT licenseret.
+## License
+This project is MIT licensed.
