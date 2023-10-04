@@ -14,8 +14,8 @@ ssh_elevenlabs-service:
 ssh_downloaded-videos:
 	docker exec -it videogenerator-downloaded-videos-1 /bin/bash
 
-ssh_auto-subtitle:
-	docker exec -it videogenerator-auto-subtitle-1 /bin/bash
+ssh_subtitles:
+	docker-compose exec subtitles /bin/bash
 
 build_downloaded-videos:
 	docker-compose up --build -d downloaded-videos
@@ -33,6 +33,6 @@ build_and_start_elevenlabs_service_skip_api:
 	docker-compose up --build -d elevenlabs-service
 	docker-compose exec elevenlabs-service /bin/bash -c "python3 generateAudio.py --skip-api"
 
-build_and_start_auto_subtitle:
-	docker-compose up --build -d auto-subtitle
-	docker-compose exec auto-subtitle /bin/bash -c "python3 auto_subtitle.py"
+build_and_start_subtitles:
+	docker-compose up --build -d subtitles
+	docker-compose exec subtitles /bin/bash -c "python3 auto_subtitle.py files/videos/video_1_speech.mp4"

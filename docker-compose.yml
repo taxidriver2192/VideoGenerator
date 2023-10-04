@@ -32,3 +32,4 @@ services:
     build:
       context: ./subtitles
       dockerfile: Dockerfile
+    tty: true
