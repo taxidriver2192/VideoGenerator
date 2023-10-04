@@ -15,7 +15,7 @@ This project is currently in its early stages of development and is not fully fu
 
 This project is inspired by the desire to automate the creation of content that resembles the content in the video. The goal is to automate the entire process from generating scripts, creating audio, adding subtitles, and cutting videos into smaller segments. With a future expansion plan, we also plan to add the ability to automatically upload processed videos to YouTube.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/P2kRrulJsPc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Video](https://img.youtube.com/vi/P2kRrulJsPc/0.jpg)](https://www.youtube.com/watch?v=P2kRrulJsPc)
 
 ### Workflow
 
