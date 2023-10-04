@@ -13,7 +13,9 @@ This project is currently in its early stages of development and is not fully fu
 
 ## Purpose and Example
 
-This project is inspired by the desire to automate the creation of content that resembles the content in the following [example video](https://www.youtube.com/embed/P2kRrulJsPc). The goal is to automate the entire process from generating scripts, creating audio, adding subtitles, and cutting videos into smaller segments. With a future expansion plan, we also plan to add the ability to automatically upload processed videos to YouTube.
+This project is inspired by the desire to automate the creation of content that resembles the content in the video. The goal is to automate the entire process from generating scripts, creating audio, adding subtitles, and cutting videos into smaller segments. With a future expansion plan, we also plan to add the ability to automatically upload processed videos to YouTube.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/P2kRrulJsPc" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ### Workflow
 
