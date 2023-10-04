@@ -21,7 +21,6 @@ This project is inspired by the desire to automate the creation of content that 
 2. **Elevenlabs-service**: Starts when script-generation is complete and generates audio for the given script.
 3. **Auto-subtitle**: Starts when audio generation is complete and adds subtitles to the video.
 4. **Downloaded-videos**: Done. Starts manually and takes a link to a video as input. It cuts a longer video into shorter segments. This service can also take a list of videos as input.
-5. **Device-cloning**: Done. Starts manually and clones a device.
 
 ### Planned Improvements
 
