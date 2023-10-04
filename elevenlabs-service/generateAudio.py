@@ -1,6 +1,6 @@
-import argparse
-import io
 import os
+import io
+import re
 from pydub import AudioSegment
 from moviepy.editor import AudioFileClip, VideoFileClip
 from elevenlabs import generate, set_api_key
@@ -39,8 +39,6 @@ def main():
 
     # Get a list of all files in the current directory that have a .mp4 extension and start with 'video_'
     video_files = []
-    import re
-
     print(os.listdir('files/videos'))
     for file in os.listdir('files/videos'):
         if os.path.isfile(os.path.join('files/videos', file)) and file.endswith('.mp4') and re.match(r'^video_\d+\.mp4$', file):
@@ -70,8 +68,8 @@ def main():
     final_audio = AudioSegment.silent(duration=500)  # start with 0.5s silence
 
     skip_api = False  # default value
-    if 'data' in locals() and 'skip_api' in data:
-        skip_api = data['skip_api']
+    if 'skip_api' in os.environ and os.environ['skip_api'] == 'true':
+        skip_api = True
 
     if not skip_api:
         print("Generating audio...")
