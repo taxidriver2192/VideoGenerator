@@ -1,6 +1,7 @@
 import whisper
 import os
 import logging
+import pysrt
 from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
 
 # Konfigurer logging
@@ -35,25 +36,30 @@ def generate_subtitles_with_whisper(audio_path, model_name="base"):
         logging.error(f"Error generating subtitles: {str(e)}")
         return []
 
-def add_subtitles_to_video(video_path, subtitles):
-    logging.info("Adding subtitles to video...")
+def add_subtitles_to_video(video_path, srt_file_path):
+    # Load the video clip
+    video = VideoFileClip(video_path)
+    clips = [video]
+
+    # Load the subtitles
+    subs = pysrt.open(srt_file_path)
     
-    try:
-        video = VideoFileClip(video_path)
-        clips = [video]
+    # Add subtitles to video
+    for sub in subs:
+        start_seconds = sub.start.ordinal / 1000.0  # Convert to seconds
+        end_seconds = sub.end.ordinal / 1000.0      # Convert to seconds
         
-        for start, end, text in subtitles:
-            txt_clip = (TextClip(text, fontsize=24, color='white', align='center')
-                        .set_pos(('center', 'bottom'))
-                        .set_start(start)
-                        .set_end(end))
-            clips.append(txt_clip)
+        txt_clip = (TextClip(sub.text, fontsize=24, color='white', align='center')
+                    .set_pos(('center', 'bottom'))
+                    .set_start(start_seconds)
+                    .set_end(end_seconds))
         
-        final_clip = CompositeVideoClip(clips)
-        final_clip.write_videofile(video_path.replace(".mp4", "_subtitles.mp4"), codec="libx264")
-        logging.info("Subtitles added to video.")
-    except Exception as e:
-        logging.error(f"Error adding subtitles to video: {str(e)}")
+        clips.append(txt_clip)
+    
+    # Export video with subtitles
+    final_clip = CompositeVideoClip(clips)
+    final_clip.write_videofile(video_path.replace(".mp4", "_subtitles.mp4"), codec="libx264")
+
 
 # Eksempel på brug
 video_path = "files/videos/video_1_speech.mp4"
@@ -62,4 +68,6 @@ audio_path = extract_audio(video_path)
 if audio_path:
     subtitles = generate_subtitles_with_whisper(audio_path)
     if subtitles:
-        add_subtitles_to_video(video_path, subtitles)
+
+        print(subtitles);
+        #add_subtitles_to_video(video_path, subtitles)
