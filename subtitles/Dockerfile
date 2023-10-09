@@ -1,16 +1,10 @@
-# Use an official Python runtime as a parent image
+# Brug et officielt Python runtime image som parent image
 FROM python:3.9-slim-buster
 
-# Set ImageMagick version
-ENV IMAGEMAGICK_VERSION=7.1.1-19
+# Sæt miljøvariabel for at sikre, at Python output sendes til terminalen
+ENV PYTHONUNBUFFERED=1
 
-# Set environment variable to ensure Python output is sent to the terminal
-ENV PYTHONUNBUFFERED 1
-ENV MAGICK_HOME=/usr/local/share/ImageMagick-7
-ENV PATH=$MAGICK_HOME/bin:$PATH
-ENV LD_LIBRARY_PATH=$MAGICK_HOME/lib/
-
-# Update and install dependencies
+# Opdater og installer dependencies
 RUN apt-get update && \
     apt-get install -y \
     libgl1-mesa-glx \
@@ -20,16 +14,25 @@ RUN apt-get update && \
     libfontconfig1 \
     wget \
     build-essential \
-    ffmpeg
+    ffmpeg \
+    imagemagick \
+    git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Python libraries
-RUN pip3 install --no-cache-dir moviepy openai-whisper pysrt
+# Opdater pip og installer Python libraries
+RUN pip3 install --upgrade pip && \
+    pip3 install --no-cache-dir moviepy pysrt && \
+    pip3 install git+https://github.com/openai/whisper.git
 
-# Set the working directory in the container
+# Opdater ImageMagick's sikkerhedspolitik, hvis nødvendigt
+RUN sed -i '/pattern="@*"/s/rights="none"/rights="read|write"/' /etc/ImageMagick-6/policy.xml
+
+# Sæt arbejdsmappe i containeren
 WORKDIR /subtitles
 
-# Copy the local code into the container
+# Kopier lokal kode til containeren
 COPY . /subtitles
 
-# Uncomment the following line to run the script when the container starts
+# Udkommenter den følgende linje for at køre scriptet, når containeren starter
 # CMD ["python", "auto_subtitle.py"]

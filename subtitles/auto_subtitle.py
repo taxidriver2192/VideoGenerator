@@ -36,6 +36,24 @@ def generate_subtitles_with_whisper(audio_path, model_name="base"):
         logging.error(f"Error generating subtitles: {str(e)}")
         return []
 
+def save_subtitles_to_srt(subtitles, srt_file_path):
+    logging.info("Saving subtitles to SRT file...")
+    
+    try:
+        subs = pysrt.SubRipFile()
+        for i, (start, end, text) in enumerate(subtitles):
+            item = pysrt.SubRipItem()
+            item.index = i + 1
+            item.start.seconds = start
+            item.end.seconds = end
+            item.text = text
+            subs.append(item)
+        subs.save(srt_file_path, encoding='utf-8')
+        logging.info(f"Subtitles saved to {srt_file_path}.")
+    except Exception as e:
+        logging.error(f"Error saving subtitles to SRT file: {str(e)}")
+
+
 def add_subtitles_to_video(video_path, srt_file_path):
     # Load the video clip
     video = VideoFileClip(video_path)
@@ -68,6 +86,11 @@ audio_path = extract_audio(video_path)
 if audio_path:
     subtitles = generate_subtitles_with_whisper(audio_path)
     if subtitles:
-
-        print(subtitles);
-        #add_subtitles_to_video(video_path, subtitles)
+        print(subtitles)
+        
+        # Save subtitles to SRT file
+        srt_file_path = "output_subtitles.srt"
+        save_subtitles_to_srt(subtitles, srt_file_path)
+        
+        # Add subtitles to video
+        add_subtitles_to_video(video_path, srt_file_path)
